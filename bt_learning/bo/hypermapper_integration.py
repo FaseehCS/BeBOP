@@ -6,7 +6,8 @@ import numpy as np
 from typing import List, Callable, Dict, Any
 import sys
 sys.path.insert(0, "./hypermapper")
-from hypermapper import hypermapper  # noqa
+# from hypermapper import hypermapper  # noqa
+import hypermapper
 
 from behaviors.common_behaviors import ParameterizedNode, ParameterTypes, NodeParameter
 
