@@ -59,7 +59,7 @@ conda init bash
 # Fix MuJoCo setup
 git clone https://github.com/nimrod-gileadi/mujoco-py.git &
 cd mujoco-py
-pip install --user .
+pip install -e .
 cd ..
 
 # Wait for dead-slow git clones to finish before continuing
@@ -88,17 +88,17 @@ cd robosuite
 sed -i 's/mujoco-py==2.0.2.9/mujoco-py==2.1.2.14/g' requirements.txt
 sed -i 's/mujoco-py==2.0.2.9/mujoco-py==2.1.2.14/g' setup.py
 pip install -e . &
-pip3 install --user -r requirements-extra.txt
+pip install --user -r requirements-extra.txt
 cd ..
 
 git clone git@github.com:jstyrud/py_trees.git
 cd py_trees
-pip install .
+pip install -e .
 cd ..
 
-git clone --branch hypermapper-v3 https://github.com/luinardi/hypermapper/tree/hypermapper-v3 hypermapper
+git clone --branch hypermapper-v3 https://github.com/luinardi/hypermapper.git hypermapper
 cd hypermapper
-pip install .
+pip install -e .
 cd ..
 
 cd bebop
