@@ -581,7 +581,7 @@ class Grasp(common_behaviors.Behavior):
            self.world_interface.gripper_at_ref(1.0):
             self.success()
             self.world_interface.set_grasped_object(self.target_object)
-
+            self.world_interface.set_graspable_objects(self.target_object)
     def update(self):
         """Executes behavior """
         self.check_for_success()
@@ -591,32 +591,64 @@ class Grasp(common_behaviors.Behavior):
             self.world_interface.set_action_type(ActionTypes.GRASP)
             self.world_interface.set_target_and_offset(self.target_object, self.offset)
             self.world_interface.set_yaw(self.yaw, self.target_object)
+        # print ("GRASP State", self.state)
         return self.state
 
     @staticmethod
     def parse_parameters(node_descriptor):
-        """ Parse behavior parameters from string """
+        # """ Parse behavior parameters from string. Old implementation """
+        # parameters = []
+        # parenthesis_pos = node_descriptor.find('(')
+        # if parenthesis_pos > 0:
+        #     target_object = node_descriptor[6:parenthesis_pos - 1]
+        # else:
+        #     target_object = node_descriptor[6:]
+        # parameters.append(target_object)
+        # numbers = list(map(float, re.findall(r'-?\d+\.\d+|-?\d+', node_descriptor)))
+        # if len(numbers) > 2:
+        #     offset = tuple(numbers[0:3])
+        # else:
+        #     offset = (0.0, 0.0, 0.0)
+        # parameters.append(offset)
+        # if len(numbers) > 3:
+        #     angle = numbers[3]
+        # else:
+        #     angle = 0.0
+        # parameters.append(angle)
+        # return parameters
+
+        """Parse behavior parameters from string. New implementation """
         parameters = []
-        parenthesis_pos = node_descriptor.find('(')
-        if parenthesis_pos > 0:
-            target_object = node_descriptor[6:parenthesis_pos - 1]
-        else:
-            target_object = node_descriptor[6:]
-        parameters.append(target_object)
-        numbers = list(map(float, re.findall(r'-?\d+\.\d+|-?\d+', node_descriptor)))
-        if len(numbers) > 2:
-            offset = tuple(numbers[0:3])
-        else:
-            offset = (0.0, 0.0, 0.0)
-        parameters.append(offset)
-        if len(numbers) > 3:
-            angle = numbers[3]
-        else:
-            angle = 0.0
-        parameters.append(angle)
+
+        # Split by spaces while keeping parts inside parentheses intact
+        parts = node_descriptor.strip().split(' ', 2)
+
+        if len(parts) == 3 and '(' in parts[2]:  # Handles case 1: 'grasp obstacle none (0.0, -0.15, 0.1)'
+            target_object = parts[1]
+            remaining = parts[2].strip()
+            # Split remaining by the first occurrence of '(' to separate the relative object and offset
+            relative_object, offset_str = remaining.split('(', 1)
+            relative_object = relative_object.strip()
+            # Extract offset as a tuple of floats
+            offset = tuple(map(float, re.findall(r'-?\d*\.?\d+', f"({offset_str}")))
+            if len(offset) != 3:
+                offset = (0.0, 0.0, 0.0)  # Default if offset is not parsed correctly
+            angle = 0.0  # Default angle
+            # Check if there is an angle part after the offset
+            if ')' in offset_str:
+                angle_part = offset_str.split(')')[1].strip()
+                if angle_part:
+                    angle = float(angle_part)
+            parameters.extend([target_object, offset, angle])
+        elif len(parts) == 2:  # Handles case 2: 'grasp peg'
+            target_object = parts[1]
+            relative_object = 'none'  # Set relative object as 'none'
+            offset = f'{target_object}_INITIAL'  # Set offset as 'peg_INITIAL'
+            angle = 0.0  # Default angle if not specified
+            parameters.extend([target_object, offset, angle])
+
         return parameters
-
-
+    
 class Push(common_behaviors.Behavior):
     """ Push to an offset"""
 
