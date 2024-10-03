@@ -802,6 +802,14 @@ class RobosuiteInterface():
         """ Gets grasped object"""
         return self.grasped_object
 
+    def set_graspable_objects(self, graspable_objects):
+        """ Sets graspable objects """
+        self.graspable_objects = graspable_objects
+
+    def get_graspable_object(self):
+        """ Gets graspable objects """
+        return self.graspable_objects
+    
     def get_fitness(self):
         """ Gets the fitness score of the current logged run """
         fitness = np.sum([env_info.get('reward_actions', 0) for env_info in self.env_infos])
