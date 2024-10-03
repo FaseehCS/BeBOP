@@ -721,10 +721,10 @@ class RobosuiteInterface():
         perpendicular distance is small enough
         """
         aligned = False
-        if self.type == 'peg_ins':
+        if self.type == 'peg_ins' or self.type == 'peg_ins_recovery':
             if target_object == 'peg':
                 if self.observation[24] > 0.97 and self.observation[26] < 0.03:
-                    aligned = True
+                    aligned = True                   
         return aligned
 
     def get_handle_angle(self):
