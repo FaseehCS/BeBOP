@@ -437,6 +437,9 @@ class Atomic(common_behaviors.Behavior):
         parameters.append(gripper)
         return parameters
 
+PREDEFINED_OBS_LOCATIONS = [(-0.1,0.4,0.02), (-0.05,0.4,0.02), (0.0,0.4,0.02), (0.05,0.4,0.02), (0.1,0.4,0.02),
+                            (-0.1,0.3,0.02), (-0.05,0.3,0.02), (0.0,0.3,0.02), (0.05,0.3,0.02), (0.1,0.3,0.02)]
+RANDOM_LOCATION_LIMITS = [(-0.1, 0.1), (0.2, 0.4), (0.01, 0.03)]  # (x, y, z) limits for random generation
 
 class Reach(common_behaviors.Behavior):
     """
@@ -481,6 +484,33 @@ class Reach(common_behaviors.Behavior):
                 grasp_to_robot_vector = rotate_frame_z(grasp_to_robot_vector, -frame_yaw)
 
         self.target_pos = grasp_to_robot_vector + self.offset
+        # Check if there is an object at the target position
+        if self.world_interface.is_object_at_position(self.target_pos, threshold=0.1) is not None:
+            # If there is a collision, try predefined locations
+            for predefined_loc in PREDEFINED_OBS_LOCATIONS:
+                test_target_pos = grasp_to_robot_vector + np.array(predefined_loc)
+                if self.world_interface.is_object_at_position(test_target_pos, threshold=0.1) is None:
+                    # Found a collision-free location
+                    self.target_pos = test_target_pos
+                    # print(f"Using predefined location {predefined_loc} due to collision at initial target position.")
+                    return
+
+            # If no collision-free predefined location is found, try random positions up to 100 times
+            for _ in range(100):
+                random_loc = np.array([
+                    np.random.uniform(*RANDOM_LOCATION_LIMITS[0]),
+                    np.random.uniform(*RANDOM_LOCATION_LIMITS[1]),
+                    np.random.uniform(*RANDOM_LOCATION_LIMITS[2]),
+                ])
+                test_target_pos = grasp_to_robot_vector + random_loc
+                if self.world_interface.is_object_at_position(test_target_pos, threshold=0.1) is None:
+                    # Found a collision-free random location
+                    self.target_pos = test_target_pos
+                    # print(f"Using random location {random_loc} due to collision at predefined locations.")
+                    return
+
+            # If no collision-free location is found, raise an error
+            raise ValueError("Unable to find a collision-free target position after 100 random attempts.")
 
     def initialise(self) -> None:
         super().initialise()
