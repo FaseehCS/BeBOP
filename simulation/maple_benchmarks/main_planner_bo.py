@@ -517,6 +517,8 @@ def get_bo_handler(env_parameters, bo_settings, env_type="lift", fix_goal_condit
                                                      random_step=True)
     elif env_type == "peg_ins":
         world_interface = WorldInterface('peg_ins', ['peg'])
+        env_parameters.sim_class.graspable_objects = ['peg']
+        env_parameters.sim_class.all_objects = ['peg']
         if fix_goal_condition:
             goals = [planner_behaviors.Inserted('at ', ['peg', 'none', '(0.0, -0.15, 0.1)'], world_interface)]
         else:
@@ -524,9 +526,21 @@ def get_bo_handler(env_parameters, bo_settings, env_type="lift", fix_goal_condit
         env_parameters.py_tree_parameters.behavior_lists = behavior_list_settings.get_behavior_list(['peg'],
                                                                                                     random_step=True,
                                                                                                     large_object=True)
-
+    elif env_type == "peg_ins_recovery":
+        world_interface = WorldInterface('peg_ins_recovery', ['peg', 'obstacle'])
+        world_interface.set_object_pos('obstacle', '(0.0, -0.15, 0.1)')
+        env_parameters.sim_class.graspable_objects = ['peg', 'obstacle']
+        env_parameters.sim_class.all_objects = ['peg', 'obstacle']
+        if fix_goal_condition:
+            goals = [planner_behaviors.Inserted('at ', ['peg', 'none', '(0.0, -0.15, 0.1)'], world_interface)]
+        else:
+            goals = [planner_behaviors.Inserted('at ', ['peg'], world_interface)]
+        env_parameters.py_tree_parameters.behavior_lists = behavior_list_settings.get_behavior_list(['peg', 'obstacle'],
+                                                                                                    random_step=True,
+                                                                                                    large_object=True)
     string_bt, _ = planner.plan(world_interface, planner_behaviors, goals, BehaviorLists(sequence_nodes=['s(', 'sm(']))
-    print(string_bt)
+    print("------------------------- TREE \n\n",string_bt)
+    ### Learning start here
     env_parameters.py_tree_parameters.behavior_lists.convert_from_string(string_bt)
     env_parameters.sim_parameters.type = env_type
 
@@ -561,7 +575,10 @@ def get_bo_handler(env_parameters, bo_settings, env_type="lift", fix_goal_condit
             bo_handler.fix_conditions(robosuite_behaviors.AtPosFree, threshold=0.08)
         elif env_type == "peg_ins":
             bo_handler.fix_conditions(robosuite_behaviors.AtPos)
-
+        elif env_type == "peg_ins_recovery":
+            bo_handler.fix_conditions(robosuite_behaviors.AtPos)
+            bo_handler.fix_conditions(robosuite_behaviors.Reach)
+            bo_handler.fix_conditions(robosuite_behaviors.Grasp, special_obj='obstacle')
     return bo_handler
 
 
