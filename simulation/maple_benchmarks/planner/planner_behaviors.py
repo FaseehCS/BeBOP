@@ -598,6 +598,8 @@ class Aligned(pt.behaviour.Behaviour, PlannedBehavior):
         name = 'aligned'  # Non-planner behavior to replace with
         self.world_interface = world_interface
         self.target_object = parameters[0]
+        self.relative_object = parameters[1]
+        self.target_position = parameters[2]
         name = name + " " + self.target_object
         pt.behaviour.Behaviour.__init__(self, name)
         PlannedBehavior.__init__(self, [], [])
@@ -607,11 +609,11 @@ class Aligned(pt.behaviour.Behaviour, PlannedBehavior):
             # don't attempt to compare against unrelated types
             return False
 
-        return self.name == other.name and self.target_object == other.target_object
+        return self.name == other.name and self.target_object == other.target_object and self.relative_object == other.relative_object and self.target_position == other.target_position
 
     def get_condition_parameters(self):
         """ Returns parameters of the condition """
-        return [self.target_object]
+        return [self.target_object, self.relative_object, self.target_position]
 
     def update(self):
         if self.world_interface.is_aligned(self.target_object):
@@ -630,8 +632,16 @@ class Align(Behavior, PlannedBehavior):
         if len(parameters) > 0:
             self.target_object = parameters[0]
             name += " " + self.target_object
-            preconditions = [Grasped('grasped', [self.target_object], world_interface)]
-            postconditions = [Aligned('aligned', [self.target_object], world_interface)]
+        if len(parameters) > 1:
+            self.relative_object = parameters[1]
+        else:
+            self.relative_object = ''
+        if len(parameters) > 2:
+            self.target_position = parameters[2]
+        else:
+            self.target_position = ''
+        preconditions = [Grasped('grasped', [self.target_object, self.relative_object, self.target_position], world_interface)]
+        postconditions = [Aligned('aligned', [self.target_object, self.relative_object, self.target_position], world_interface)]
         Behavior.__init__(self, name, world_interface, verbose, max_ticks=1)
         PlannedBehavior.__init__(self, preconditions, postconditions)
 
