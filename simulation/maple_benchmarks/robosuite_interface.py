@@ -532,6 +532,63 @@ class RobosuiteInterface():
             return True
         return False
 
+    def collision_check(self, object_A, object_B, threshold=0.0):
+        """Checks if two objects are in collision based on their positions and a threshold."""
+        # Set a default threshold if none is provided
+        if threshold == 0.0:
+            threshold = IN_POS_DIST
+
+        # Get the positions of the two objects
+        position_A = self.get_object_position(object_A)
+        position_B = self.get_object_position(object_B)
+
+        # Print debug information
+        # print(f"Checking collision between {object_A} and {object_B}:")
+        # print(f"Position of {object_A}: {position_A}")
+        # print(f"Position of {object_B}: {position_B}")
+
+        # Calculate the Euclidean distance between the two positions
+        distance = np.linalg.norm(position_A - position_B)
+
+        # Check if the distance is within the collision threshold
+        if distance <= threshold:
+            # print(f"Collision detected between {object_A} and {object_B} (distance: {distance}, threshold: {threshold})")
+            return True
+
+        # print(f"No collision between {object_A} and {object_B} (distance: {distance}, threshold: {threshold})")
+        return False
+        
+    def is_object_at_position(self, position, threshold=0.0):
+        """
+        Checks if any object is at the given position within the specified threshold.
+        
+        Args:
+            position (tuple): The (x, y, z) position to check.
+            threshold (float): The distance threshold for considering an object to be at the position.
+        
+        Returns:
+            str: The name of the object at the position if found, otherwise 'None'.
+        """
+
+        # Set a default threshold if none is provided
+        if threshold == 0.0:
+            threshold = IN_POS_DIST
+            
+        for obj in self.all_objects:
+            # Get the position of the current object
+            object_position = self.get_object_position(obj)
+            
+            # Calculate the distance between the object's position and the input position
+            distance = np.linalg.norm(object_position - np.array(position))
+            
+            # Check if the distance is within the threshold
+            if distance <= threshold:
+                # print(f"Object '{obj}' is at the position {position} (distance: {distance}, threshold: {threshold})")
+                return obj
+
+        # print(f"No object found at the position {position} within the threshold of {threshold}")
+        return None
+
     def at_yaw(self, yaw, target_object=None):
         """ Is robot currently at the target yaw angle """
         if self.env.env.robot_configs[0]['controller_config']['type'] == 'OSC_POSITION':  # No angle control, so assume always ok
