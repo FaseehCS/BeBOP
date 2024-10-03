@@ -88,7 +88,25 @@ def get_behavior_list(objects=None,
                                       data_type=ParameterTypes.FLOAT, random_step=random_step, standard_deviation=0.0)],
             condition=True
             ))
+    # print ("OBJECTS:",objects)
+    # Exclude "peg" when defining objects for the CheckLoc condition
+    objects_for_check_loc = [obj for obj in objects if obj != "peg"]
+    peg_object = [obj for obj in objects if obj == "peg"]
+    # print ("objects_for_check_loc:",objects_for_check_loc)
 
+    # Update the CheckLoc condition node creation to include relevant objects
+    condition_nodes.append(ParameterizedNode(
+        name='check_loc',
+        behavior=robosuite_behaviors.CheckLoc,
+        parameters=[
+            NodeParameter(objects_for_check_loc, placement=0),  # First parameter: target object, excluding "peg"
+            NodeParameter(['none'] + objects_for_check_loc),  # Second parameter: relative object
+            NodeParameter([], (0.0, 0.15, 0.1), (0.0, 0.15, 0.1), (0.05, 0.05, 0.05), # specify same min and max values
+                        data_type=ParameterTypes.POSITION, random_step=random_step, standard_deviation=0.025)  # Third parameter: offset
+        ],
+        condition=True
+    ))
+    
     if angle_control:
         condition_nodes.append(
             ParameterizedNode(
