@@ -61,8 +61,13 @@ def compute_fitness(
     bt_fitness = fitness_function.compute_fitness(world_interface, py_tree, ticks, coeff, verbose)
 
     dense_fitness, affordance_penalty, n_steps, success = world_interface.get_fitness()
-
-    fitness = bt_fitness + dense_fitness - affordance_penalty
+    # This is a hacky solution to circumvent the bug where py_tree.failed if False even if success is False.
+    if success == False:
+        py_tree.failed = True
+        bt_fitness = fitness_function.compute_fitness(world_interface, py_tree, ticks, coeff, verbose)
+        dense_fitness, affordance_penalty, n_steps, success = world_interface.get_fitness()
+    # fitness = bt_fitness + dense_fitness - affordance_penalty
+    fitness = bt_fitness + dense_fitness
     if verbose:
         print('bt_fitness:', bt_fitness)
         print('dense_fitness:', dense_fitness)
