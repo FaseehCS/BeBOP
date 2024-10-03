@@ -262,7 +262,8 @@ class Place(Behavior, PlannedBehavior):
         if len(parameters) > 2:
             self.target_position = parameters[2]
             if world_interface.is_graspable(self.target_object):
-                postconditions = [AtPos('at ', [self.target_object,
+                postconditions = [CheckLoc('check_loc', [self.target_object, self.relative_object, self.target_position], world_interface),
+                                  AtPos('at ', [self.target_object,
                                                 self.relative_object,
                                                 self.target_position,
                                                 True],
@@ -274,6 +275,7 @@ class Place(Behavior, PlannedBehavior):
                                         world_interface)]
         else:
             self.target_position = ""
+        preconditions = [Grasped('grasped', [self.target_object, self.relative_object, self.target_position], world_interface)]
         Behavior.__init__(self, name, world_interface, verbose, max_ticks=1)
         PlannedBehavior.__init__(self, preconditions, postconditions)
 
