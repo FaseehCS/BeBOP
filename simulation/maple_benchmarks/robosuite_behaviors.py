@@ -102,7 +102,81 @@ class AtPos(pt.behaviour.Behaviour):
 
         return parameters
 
+class CheckLoc(pt.behaviour.Behaviour):
+    """
+    Check if a location is free or not
+    """
+    # Save the failure info 
+    def __init__(self, name, parameters, world_interface, _verbose: bool = False):
+        # print ("Parameters:",parameters)
+        self.world_interface = world_interface
+        self.target_object = parameters[0]
+        self.relative_object = parameters[1]
+        self.offset = parameters[2]
+        self.threshold = 0.1 # In future add it as an optional parameters
+        super().__init__(name)
 
+    @staticmethod
+    def is_parameter_valid(parameters, index):
+        # """ Checks to make sure the two object parameters are different """
+        # if index == 1 and parameters[0] == parameters[1]:
+        #     return False
+        return True
+
+    def update(self):
+        # Ensure graspable_objects is always a list
+        if isinstance(self.world_interface.graspable_objects, str):
+            self.world_interface.graspable_objects = [self.world_interface.graspable_objects]
+
+        # Now proceed with the modified graspable_objects
+        graspable_objects = self.world_interface.graspable_objects
+        # print("graspable_objects", graspable_objects)
+
+        for obj in graspable_objects:
+            # print("obj", obj)
+            # Check if the object is not 'peg' and is at the calculated position relative to the offset and threshold
+            if obj == 'peg':
+                continue
+            if self.world_interface.object_at_pos(
+                obj,
+                self.world_interface.get_object_position(self.relative_object) + self.offset,
+                self.threshold
+            ):
+                # print("FAIL CheckLoc")
+                return pt.common.Status.FAILURE
+
+        return pt.common.Status.SUCCESS
+
+
+    @staticmethod
+    def parse_parameters(node_descriptor):
+        """Parse behavior parameters from string."""
+        parameters = []
+        # print ("TARGET OBJECT",node_descriptor)
+        # Split the descriptor into parts by spaces
+        parts = node_descriptor.split()
+        if len(parts) < 4:
+            # If format is unexpected, provide defaults
+            return ["", "", (0.0, 0.0, 0.0)]
+
+        # Extract target_object and relative_object
+        target_object = parts[1]  # Second part is target object
+        relative_object = parts[2]  # Third part is relative object
+        parameters.append(target_object)
+        parameters.append(relative_object)
+
+        # Use regex to extract position numbers, ensuring we handle both spaced and non-spaced numbers
+        position_match = re.search(r'\((-?\d*\.?\d+),\s*(-?\d*\.?\d+),\s*(-?\d*\.?\d+)\)', node_descriptor)
+        if position_match:
+            position = tuple(map(float, position_match.groups()))
+        else:
+            position = (0.0, 0.0, 0.0)  # Default if no match found
+
+        # Add the position to parameters
+        parameters.append(position)
+
+        return parameters
+    
 class AtPosFree(AtPos):
     """
     Check if object is at position relative some other object. Object must not be grasped
