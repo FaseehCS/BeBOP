@@ -115,17 +115,25 @@ class Grasped(pt.behaviour.Behaviour, PlannedBehavior):
         PlannedBehavior.__init__(self, [], [])
         self.world_interface = world_interface
         self.target_object = parameters[0]
+        if len(parameters)>1:
+            self.relative_object = parameters[1]
+        else:
+            self.relative_object = ''
+        if len(parameters)>2:
+            self.target_position = parameters[2]
+        else:
+            self.target_position = ''
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, Grasped):
             # don't attempt to compare against unrelated types
             return False
 
-        return self.name == other.name and self.target_object == other.target_object
+        return self.name == other.name and self.target_object == other.target_object and self.relative_object == other.relative_object and self.target_position == other.target_position
 
     def get_condition_parameters(self):
         """ Returns parameters of the condition """
-        return [self.target_object]
+        return [self.target_object, self.relative_object, self.target_position]
 
     def update(self):
         if self.world_interface.get_grasped_object() == self.target_object:
@@ -144,8 +152,19 @@ class Grasp(Behavior, PlannedBehavior):
         if len(parameters) > 0:
             self.target_object = parameters[0]
             name += " " + self.target_object
-            if self.target_object != 'none':
-                postconditions = [Grasped('grasped', [self.target_object], world_interface)]
+        if len(parameters) > 1:
+            self.relative_object = parameters[1]
+            name += " " + self.relative_object
+        else:
+            self.relative_object = ''
+        if len(parameters) > 2:
+            self.target_position = parameters[2]
+            name += " " + self.target_position
+        else:
+            self.target_position = ''  
+
+        if self.target_object != 'none':
+            postconditions = [Grasped('grasped', [self.target_object, self.relative_object, self.target_position], world_interface)]
         Behavior.__init__(self, name, world_interface, verbose, max_ticks=1)
         PlannedBehavior.__init__(self, [], postconditions)
 
