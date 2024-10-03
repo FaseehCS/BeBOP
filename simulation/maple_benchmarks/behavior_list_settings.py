@@ -51,14 +51,19 @@ def get_behavior_list(objects=None,
     if objects is None:
         objects = []
     if angle_control:
-        angle_parameter = NodeParameter([], round(-math.pi / 2, 2), round(math.pi / 2, 2), round(math.pi / 2, 2),
+        # angle_parameter = NodeParameter([], round(-math.pi / 2, 2), round(math.pi / 2, 2), round(math.pi / 2, 2),
+        #                                 data_type=ParameterTypes.FLOAT,
+        #                                 random_step=random_step, standard_deviation=math.pi / 4)
+        angle_parameter = NodeParameter([], round(-math.pi / 2, 2), round(math.pi / 2, 2), round(math.pi / 32, 2),
                                         data_type=ParameterTypes.FLOAT,
-                                        random_step=random_step, standard_deviation=math.pi / 4)
+                                        random_step=random_step, standard_deviation=math.pi / 64)
     else:
         angle_parameter = NodeParameter([0.0])
     if large_object:
-        grasp_parameter = NodeParameter([], (-0.1, -0.1, 0.0), (0.1, 0.1, 0.05), (0.05, 0.05, 0.05),
-                                        data_type=ParameterTypes.POSITION, random_step=random_step, standard_deviation=0.035)
+        # grasp_parameter = NodeParameter([], (-0.1, -0.1, 0.0), (0.1, 0.1, 0.05), (0.05, 0.05, 0.05),
+        #                                 data_type=ParameterTypes.POSITION, random_step=random_step, standard_deviation=0.035)
+        grasp_parameter = NodeParameter([], (-0.11, -0.01, -0.01), (-0.09, 0.01, 0.01), (0.01, 0.01, 0.01),
+                                        data_type=ParameterTypes.POSITION, random_step=random_step, standard_deviation=0.005)
     else:
         grasp_parameter = NodeParameter([], (-0.05, -0.05, 0.0), (0.05, 0.05, 0.05), (0.05, 0.05, 0.05),
                                         data_type=ParameterTypes.POSITION, random_step=random_step, standard_deviation=0.015)
@@ -138,7 +143,8 @@ def get_behavior_list(objects=None,
             name='atomic',
             behavior=robosuite_behaviors.Atomic,
             parameters=[NodeParameter(objects),
-                        NodeParameter([], (-0.15, -0.15, 0.0), (0.15, 0.15, 0.1), (0.05, 0.05, 0.05),
+                        # NodeParameter([], (-0.15, -0.15, 0.0), (0.15, 0.15, 0.1), (0.05, 0.05, 0.05),
+                      NodeParameter([], (-0.02, -0.29, 0.09), (0.0, -0.27, 0.11), (0.01, 0.01, 0.01),
                                       data_type=ParameterTypes.POSITION, random_step=random_step, standard_deviation=0.025),
                         deepcopy(angle_parameter),
                         NodeParameter([], 0.0, 0.0, 0.0, data_type=ParameterTypes.FLOAT,
@@ -149,8 +155,10 @@ def get_behavior_list(objects=None,
             name='reach',
             behavior=robosuite_behaviors.Reach,
             parameters=[NodeParameter(['none'] + objects),
-                        NodeParameter([], (-0.15, -0.15, 0.0), (0.15, 0.15, 0.15), (0.05, 0.05, 0.05),
-                                      data_type=ParameterTypes.POSITION, random_step=random_step, standard_deviation=0.025)],
+                        # NodeParameter([], (-0.15, -0.15, 0.0), (0.15, 0.15, 0.15), (0.05, 0.05, 0.05),
+                        # NodeParameter([], (-0.02, 0.0, 0.01), (0.02, 0.4, 0.05), (0.01, 0.1, 0.01),
+                        NodeParameter([], (0.0, 0.3, 0.03), (0.0, 0.3, 0.03), (0.01, 0.01, 0.01),
+                                      data_type=ParameterTypes.POSITION, random_step=random_step, standard_deviation=0.005)],
             condition=False
         )]
     if gripper_control:
