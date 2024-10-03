@@ -129,11 +129,29 @@ class BoHandler():
                     if parameter.list_of_values != [] and parameter.value not in ['', 0.0]:
                         parameter.list_of_values = [parameter.value]
 
-    def fix_conditions(self, behavior_type, threshold=None, value=None):
+    def fix_conditions(self, behavior_type, threshold=None, value=None, special_obj=None):
         """ Fixes the values of any conditions of the given type """
+        # I should check the obstacle node and fix them based on the obstacle node only
+        # print(behavior_type.__name__)
         for node in self.bt:
             if isinstance(node, ParameterizedNode) and node.behavior is behavior_type and \
                  node.parameters is not None:
+                # Check if the behavior type is Grasp and parameter at index 1 matches special_obj
+                if behavior_type.__name__ == 'Grasp' and node.parameters[0].value == special_obj:
+                    # Set limits for the position (parameter at index 1)
+                    node.parameters[1].value = FIXED_GRASP_PARAM_POS
+                    node.parameters[1].min = FIXED_GRASP_PARAM_POS
+                    node.parameters[1].max = FIXED_GRASP_PARAM_POS
+
+                    # Set angle information for the orientation (parameter at index 2)
+                    node.parameters[2].value = FIXED_GRASP_PARAM_ORI
+                    node.parameters[2].min = FIXED_GRASP_PARAM_ORI
+                    node.parameters[2].max = FIXED_GRASP_PARAM_ORI
+
+                # If special_obj is specified but not matching, skip to the next node
+                if special_obj is not None and node.parameters[0].value != special_obj:
+                    continue
+
                 if threshold is not None:
                     node.parameters[-1].value = threshold
                 for parameter in node.parameters:
