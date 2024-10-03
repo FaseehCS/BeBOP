@@ -206,14 +206,18 @@ class Reach(Behavior, PlannedBehavior):
             self.relative_object = ""
         if len(parameters) > 2:
             self.target_position = parameters[2]
-            if world_interface.is_graspable(self.target_object):
-                postconditions = [AtPos('at ', [self.target_object,
-                                                self.relative_object,
-                                                self.target_position,
-                                                True],
-                                        world_interface)]
         else:
-            self.target_position = ""
+            self.target_position = '(0.0, 0.0, 0.02)'  # Default safe position
+        
+        preconditions = [Grasped('grasped', [self.target_object, self.relative_object, self.target_position], world_interface)]
+        # Construct name with all available information
+        name += f" {self.target_position}" if self.target_position != 'unknown' else ""
+        print ("reach name",name)
+        # Set postconditions based on target position and whether the object is graspable
+        if world_interface.is_graspable(self.target_object):
+            print ("PARAMS REACH after changes and object graspable:",self.target_object, self.relative_object, self.target_position)
+            postconditions = [AtPos('at ', [self.target_object, self.relative_object, self.target_position, True], world_interface)]
+
         Behavior.__init__(self, name, world_interface, verbose, max_ticks=1)
         PlannedBehavior.__init__(self, preconditions, postconditions)
 
