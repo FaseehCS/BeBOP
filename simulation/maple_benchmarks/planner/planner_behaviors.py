@@ -653,6 +653,69 @@ class Inserted(pt.behaviour.Behaviour, PlannedBehavior):
             return pt.common.Status.SUCCESS
         return pt.common.Status.FAILURE
 
+class CheckLoc(pt.behaviour.Behaviour, PlannedBehavior):
+    """
+    Check if the goal location (0.0, -0.15, 0.1) is free, excluding 'peg'.
+    """
+    # GOAL_LOCATION = "0.0,-0.15,0.1"
+
+    def __init__(self, name, parameters, world_interface):
+        self.world_interface = world_interface
+
+        # Ensure that all three parameters are handled correctly
+        if len(parameters) > 0:
+            self.target_object = parameters[0]  # The object to be checked against
+            for obj in self.world_interface.graspable_objects:
+                if self.world_interface.object_at_pos(obj, parameters[2]): 
+                    self.target_object = obj
+                    print (self.target_object)
+                    name += " " + self.target_object
+                    break 
+        else:
+            self.target_object = "unknown"  # Default if missing
+
+        if len(parameters) > 1:
+            self.relative_object = parameters[1]
+            name += " " + self.relative_object
+        else:
+            self.relative_object = ""  # Default if missing
+        
+        if len(parameters) > 2:
+            self.offset = parameters[2]  # This is the positional parameter
+            if self.offset != 'unknown':
+                name += " " + self.offset
+        else:
+            self.offset = ""
+        
+        # print("PARAMS CheckLoc", self.target_object, self.relative_object, self.offset)
+        pt.behaviour.Behaviour.__init__(self, name)
+        PlannedBehavior.__init__(self, [], [])
+
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, CheckLoc):
+            # don't attempt to compare against unrelated types
+            return False
+        print ("names", self.name, other.name)
+        print ("target_objects", self.target_object, other.target_object)
+        print ("relative_objects", self.relative_object, other.relative_object)
+        print ("offsets",self.offset, other.offset)
+        return self.name == other.name and self.target_object == other.target_object and \
+            self.relative_object == other.relative_object and self.offset == other.offset
+
+    def get_condition_parameters(self):
+        """ Returns parameters of the condition """
+        # Ensure to pass all relevant parameters needed for actions
+        return [self.target_object, self.relative_object, self.offset]
+
+    def update(self):
+        graspable_objects = self.world_interface.graspable_objects
+        # print("graspable_objects", graspable_objects)
+        for obj in graspable_objects:
+            if obj != "peg" and self.world_interface.object_at_pos(obj, self.offset):
+                # print("FAIL CheckLoc")
+                return pt.common.Status.FAILURE
+        # print("SUCCESS CheckLoc")
+        return pt.common.Status.SUCCESS
 
 class Insert(Behavior, PlannedBehavior):
     """
