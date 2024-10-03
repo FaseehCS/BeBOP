@@ -551,15 +551,21 @@ class RobosuiteInterface():
             return True
         return False
 
-    def object_at_yaw(self, yaw, target_object):
+    def object_at_yaw(self, yaw, target_object, threshold=0.0):
         """ Is object currently at the target yaw angle """
+
+        # Set a default threshold if none is provided
+        if threshold == 0.0:
+            threshold = AT_ROT_DIFF
+
         object_yaw = self.get_object_yaw(target_object)
 
         diff = np.minimum(
             (yaw - object_yaw) % (np.pi),
             (object_yaw - yaw) % (np.pi)
         )
-        if diff <= AT_ROT_DIFF:
+        # print ("Diff yaw",diff)
+        if diff <= threshold:
             return True
         return False
 
