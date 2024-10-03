@@ -732,7 +732,8 @@ class Insert(Behavior, PlannedBehavior):
             self.relative_object = parameters[1]
         if len(parameters) > 2:
             self.offset = parameters[2]
-            preconditions = [Aligned('atomic', [self.target_object], world_interface)]
+            preconditions = [CheckLoc('check_loc', [self.target_object, self.relative_object, self.offset], world_interface),
+                             Aligned('atomic', [self.target_object, self.relative_object, self.offset], world_interface)]
             postconditions = [Inserted('at ', [self.target_object, self.relative_object, self.offset], world_interface)]
         Behavior.__init__(self, name, world_interface, verbose, max_ticks=1)
         PlannedBehavior.__init__(self, preconditions, postconditions)
