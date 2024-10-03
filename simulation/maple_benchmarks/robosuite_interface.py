@@ -616,7 +616,7 @@ class RobosuiteInterface():
             return self.get_robot_position()
         elif target_object == 'none':
             # Just set up an origin inside the workspace [0.0, 0.0, 0.0] is not
-            if self.type == 'peg_ins':
+            if self.type == 'peg_ins' or self.type == 'peg_ins_recovery':
                 return np.array([-0.075, -0.15, 0.8])
             else:
                 return np.array([-0.075, 0.0, 0.8])
@@ -659,6 +659,14 @@ class RobosuiteInterface():
                 return self.observation[11:14]
             elif target_object == 'hole':
                 return self.observation[21:24]
+        elif self.type == 'peg_ins_recovery':
+            if target_object == 'peg':
+                return self.observation[11:14]
+            elif target_object == 'hole':
+                return self.observation[21:24]
+            elif target_object == 'obstacle':
+                # print ("target_object is obstacle")
+                return self.observation[27:30]    
 
     def get_object_yaw(self, target_object):
         """ Returns object yaw angle from observation """
@@ -697,6 +705,14 @@ class RobosuiteInterface():
                 _, _, object_yaw = quat_to_euler(self.observation[14:18])
             elif target_object == 'hole':
                 object_yaw = 0.0
+        elif self.type == 'peg_ins_recovery':
+            if target_object == 'peg':
+                _, _, object_yaw = quat_to_euler(self.observation[14:18])
+            elif target_object == 'hole':
+                object_yaw = 0.0
+            elif target_object == 'obstacle':
+                _, _, object_yaw = quat_to_euler(self.observation[30:34])
+        # print ("object_yaw",object_yaw)
         return object_yaw
 
     def is_object_aligned(self, target_object):
