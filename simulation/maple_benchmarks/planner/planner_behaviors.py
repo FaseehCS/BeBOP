@@ -231,12 +231,15 @@ class Reach(Behavior, PlannedBehavior):
             self.success()
 
     def update(self):
-        """Executes behavior """
+        """Executes behavior."""
         self.check_for_success()
         Behavior.update(self)
 
         if self.state is pt.common.Status.RUNNING:
-            self.world_interface.reach(self.relative_object + "+" + self.target_position)
+            # Use the provided position or a default if none is set
+            target = self.relative_object + "+" + self.target_position if self.relative_object != "" else self.target_position
+            print ("REACH TARGET",target)
+            self.world_interface.reach(target)
         return self.state
 
 
