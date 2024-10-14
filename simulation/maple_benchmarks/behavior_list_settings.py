@@ -111,7 +111,14 @@ def get_behavior_list(objects=None,
         ],
         condition=True
     ))
-    
+
+    condition_nodes.append(ParameterizedNode(
+    name='is graspable',
+    behavior=robosuite_behaviors.IsGraspable,
+    parameters=[NodeParameter(peg_object, placement=0)],  # Pass target objects as the parameter
+    condition=True
+    ))
+
     if angle_control:
         condition_nodes.append(
             ParameterizedNode(
@@ -175,7 +182,7 @@ def get_behavior_list(objects=None,
         ParameterizedNode(
             name='push',
             behavior=robosuite_behaviors.PushTowards,
-            parameters=[NodeParameter(objects),
+            parameters=[NodeParameter(objects_for_check_loc),
                         NodeParameter([], (-0.15, -0.15, 0.0), (0.15, 0.15, 0.0), (0.05, 0.05, 0.0),
                                       data_type=ParameterTypes.POSITION, random_step=random_step, standard_deviation=0.025),
                         NodeParameter([], 0.1, 0.2, 0.05, data_type=ParameterTypes.FLOAT,
