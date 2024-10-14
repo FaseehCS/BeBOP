@@ -567,6 +567,18 @@ def get_bo_handler(env_parameters, bo_settings, env_type="lift", fix_goal_condit
         env_parameters.py_tree_parameters.behavior_lists = behavior_list_settings.get_behavior_list(['peg', 'obstacle'],
                                                                                                     random_step=True,
                                                                                                     large_object=True)
+    elif env_type == "peg_ins_recovery_large":
+        world_interface = WorldInterface('peg_ins_recovery_large', ['peg', 'obstacle'], ['peg'])
+        world_interface.set_object_pos('obstacle', '(0.0, -0.15, 0.1)')
+        env_parameters.sim_class.graspable_objects = ['peg']
+        env_parameters.sim_class.all_objects = ['peg', 'obstacle']
+        if fix_goal_condition:
+            goals = [planner_behaviors.Inserted('at ', ['peg', 'none', '(0.0, -0.15, 0.1)'], world_interface)]
+        else:
+            goals = [planner_behaviors.Inserted('at ', ['peg'], world_interface)]
+        env_parameters.py_tree_parameters.behavior_lists = behavior_list_settings.get_behavior_list(['peg', 'obstacle'],
+                                                                                                    random_step=True,
+                                                                                                    large_object=True)
     string_bt, _ = planner.plan(world_interface, planner_behaviors, goals, BehaviorLists(sequence_nodes=['s(', 'sm(']))
     print("------------------------- TREE \n\n",string_bt)
     ### Learning start here
@@ -608,6 +620,8 @@ def get_bo_handler(env_parameters, bo_settings, env_type="lift", fix_goal_condit
             bo_handler.fix_conditions(robosuite_behaviors.AtPos)
             bo_handler.fix_conditions(robosuite_behaviors.Reach)
             bo_handler.fix_conditions(robosuite_behaviors.Grasp, special_obj='obstacle')
+        elif env_type == "peg_ins_recovery_large":
+            bo_handler.fix_conditions(robosuite_behaviors.AtPos)
     return bo_handler
 
 
