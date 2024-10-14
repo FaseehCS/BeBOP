@@ -605,6 +605,22 @@ class RobosuiteInterface():
         # print(f"No object found at the position {position} within the threshold of {threshold}")
         return None
 
+    def is_graspable(self, target_object):
+        """
+        Check if the target object is graspable.
+
+        Args:
+            target_object (str): The name of the object to check.
+
+        Returns:
+            bool: True if the object is graspable, False otherwise.
+        """
+        # Check if the target object is in the list of graspable objects
+        if isinstance(self.graspable_objects, list):
+            return target_object in self.graspable_objects
+        # If graspable_objects is not a list (e.g., a string), handle it accordingly
+        return self.graspable_objects == target_object
+    
     def at_yaw(self, yaw, target_object=None):
         """ Is robot currently at the target yaw angle """
         if self.env.env.robot_configs[0]['controller_config']['type'] == 'OSC_POSITION':  # No angle control, so assume always ok
