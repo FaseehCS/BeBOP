@@ -45,6 +45,7 @@ class WorldInterface:
         self.wiped = {}
         self.aligned = {}
         self.inserted = {}
+        self.movable_objects = movable_objects
         for movable_object in movable_objects:
             self.object_positions[movable_object] = movable_object + "_INITIAL"
             self.handle_down[movable_object] = False
