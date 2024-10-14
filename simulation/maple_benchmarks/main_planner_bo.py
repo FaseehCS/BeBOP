@@ -76,7 +76,13 @@ class HandlerSettings:
     cma_es: bool = False                  # Use CMA-ES instead of BO
     cascaded: bool = False                # Run subtrees sequentially in cascaded learning
 
-
+# Fixed parameters for nodes. Used in the fix_conditions function
+FIXED_GRASP_PARAM_POS = (0.0, 0.02, 0.03)
+FIXED_GRASP_PARAM_ORI = 1.57
+SUCCESSES = []
+SUCCESSES_VALID = []
+FITNESS = []
+FITNESS_VALID = []
 class BoHandler():
     """ Class ho handle Bayesian Optimization runs. Gets fitness and returns fitness and logs data """
     def __init__(self, bt, env_parameters, settings):
