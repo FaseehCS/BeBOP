@@ -258,7 +258,12 @@ class BoHandler():
         print("Net fitness:", net_fitness)
         print("Steps:", steps)
         print("Success:", success)
-
+        if seed >= 100 and seed <1337:
+            SUCCESSES.append(success)
+            FITNESS.append(fitness)
+        if seed >= 1337:
+            SUCCESSES_VALID.append(success)
+            FITNESS_VALID.append(fitness)
     @staticmethod
     def get_parameterized_nodes(bt):
         """ Returns a list of only the parameterized nodes in the BT """
