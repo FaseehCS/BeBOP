@@ -113,7 +113,7 @@ base_variant = dict(
                 grasp_config=dict(
                     global_xyz_bounds=[
                         [-0.30, -0.30, 0.80],
-                        [0.15, 0.30, 0.85]
+                        [0.15, 0.30, 0.90]
                     ],
                     aff_threshold=0.03,
 
