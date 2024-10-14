@@ -365,15 +365,23 @@ class Push(Behavior, PlannedBehavior):
         if len(parameters) > 0:
             self.target_object = parameters[0]
             name += " " + self.target_object
+        if len(parameters) > 1:
+            self.relative_object = parameters[1]
+            name += " " + self.relative_object
+        else:
+            self.relative_object = ""
         if len(parameters) > 2:
-            self.offset = parameters[2]
-            postconditions = [AtPos('at ', [self.target_object,
+            self.target_position = parameters[2]
+            postconditions = [CheckLoc('check_loc', [self.target_object, self.relative_object, self.target_position], world_interface),
+                              AtPos('at ', [self.target_object,
                                             'none',
-                                            self.offset,
+                                            self.target_position,
                                             False],
                                     world_interface)]
+            self.target_position = '(0.0, 0.0, 0.02)'  # Default safe position
+            name += " " + self.target_position
         else:
-            self.offset = ""
+            self.target_position = ""
         self.success_on_next = False
         Behavior.__init__(self, name, world_interface, verbose, max_ticks=1)
         PlannedBehavior.__init__(self, preconditions, postconditions)
