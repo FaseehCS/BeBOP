@@ -214,8 +214,19 @@ env_params = dict(
         'env_variant.env_kwargs.skill_config.reach_config.aff_threshold': [0.06],
         'pamdp_variant.one_hot_factor': [0.375],
     },
+    peg_ins_recovery={
+        'env_variant.env_type': ['PegInHoleWSmallObs'],
+        'env_variant.controller_config_update.position_limits': [[[-0.30, -0.30, 0.75], [0.15, 0.30, 1.00]]],
+        'env_variant.env_kwargs.skill_config.reach_config.aff_threshold': [0.06],
+        'pamdp_variant.one_hot_factor': [0.375],
+    },
+    peg_ins_recovery_large={
+        'env_variant.env_type': ['PegInHoleWLargeObs'],
+        'env_variant.controller_config_update.position_limits': [[[-0.30, -0.30, 0.75], [0.15, 0.30, 1.00]]],
+        'env_variant.env_kwargs.skill_config.reach_config.aff_threshold': [0.06],
+        'pamdp_variant.one_hot_factor': [0.375],
+    },
 )
-
 
 class ActionTypes(IntEnum):
     """Define the action types."""
