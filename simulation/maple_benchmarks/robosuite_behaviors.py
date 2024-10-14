@@ -176,7 +176,61 @@ class CheckLoc(pt.behaviour.Behaviour):
         parameters.append(position)
 
         return parameters
+
+class IsGraspable(pt.behaviour.Behaviour):
+    """
+    Check if an object is graspable in the world.
+    """
+
+    def __init__(self, name, parameters, world_interface, _verbose: bool = False):
+        """
+        Initialize the IsGraspable behavior.
+        Args:
+            name: Name of the behavior node.
+            parameters: List of parameters for the node, which includes the target object.
+            world_interface: Interface to interact with the simulation or real world.
+            _verbose: Verbosity level.
+        """
+        self.world_interface = world_interface
+        self.target_object = parameters[0]
+        super().__init__(name)
+
+    @staticmethod
+    def is_parameter_valid(parameters, index):
+        # """ Checks to make sure the two object parameters are different """
+        # if index == 1 and parameters[0] == parameters[1]:
+        #     return False
+        return True
     
+    def update(self):
+        """
+        Check if the target object is graspable.
+        Returns:
+            SUCCESS if the object is graspable, FAILURE otherwise.
+        """
+
+        # Check if the target object is in the list of graspable objects in the world
+        if self.world_interface.is_graspable(self.target_object):
+            return pt.common.Status.SUCCESS
+        return pt.common.Status.FAILURE
+
+    @staticmethod
+    def parse_parameters(node_descriptor):
+        """
+        Parse the behavior parameters from a string descriptor.
+        Args:
+            node_descriptor: String describing the node, e.g., "is graspable target_object"
+        Returns:
+            List of parsed parameters, which include the target object.
+        """
+        # Split the descriptor by spaces and extract the target object name
+        parts = node_descriptor.split()
+        if len(parts) < 3:
+            # If the format is unexpected, return a default value
+            return ["unknown"]
+        target_object = parts[2]  # The third part is the target object
+        return [target_object]
+
 class AtPosFree(AtPos):
     """
     Check if object is at position relative some other object. Object must not be grasped

@@ -140,6 +140,39 @@ class Grasped(pt.behaviour.Behaviour, PlannedBehavior):
             return pt.common.Status.SUCCESS
         return pt.common.Status.FAILURE
 
+class IsGraspable(pt.behaviour.Behaviour, PlannedBehavior):
+    """
+    Check if an object is graspable.
+    """
+    def __init__(self, name, parameters, world_interface):
+        if not name:
+            name = "is graspable"
+
+        if len(parameters) > 0:
+            self.target_object = parameters[0]
+            name += " " + self.target_object
+        else:
+            self.target_object = "unknown"
+
+        pt.behaviour.Behaviour.__init__(self, name)
+        PlannedBehavior.__init__(self, [], [])
+        self.world_interface = world_interface
+
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, IsGraspable):
+            return False
+        return self.name == other.name and self.target_object == other.target_object
+
+    def get_condition_parameters(self):
+        """ Returns parameters of the condition """
+        return [self.target_object]
+
+    def update(self):
+        """ Check if the object is graspable """
+        if self.world_interface.is_graspable(self.target_object):
+            return pt.common.Status.SUCCESS
+        return pt.common.Status.FAILURE
+
 
 class Grasp(Behavior, PlannedBehavior):
     """
