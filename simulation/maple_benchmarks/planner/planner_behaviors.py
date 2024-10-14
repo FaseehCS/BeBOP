@@ -181,10 +181,12 @@ class Grasp(Behavior, PlannedBehavior):
     def __init__(self, name, parameters, world_interface, verbose=False):
         if not name:
             name = "grasp"
+        preconditions = []
         postconditions = []
         if len(parameters) > 0:
             self.target_object = parameters[0]
             name += " " + self.target_object
+            preconditions.append(IsGraspable("is graspable", [self.target_object], world_interface))
         if len(parameters) > 1:
             self.relative_object = parameters[1]
             name += " " + self.relative_object
@@ -199,7 +201,7 @@ class Grasp(Behavior, PlannedBehavior):
         if self.target_object != 'none':
             postconditions = [Grasped('grasped', [self.target_object, self.relative_object, self.target_position], world_interface)]
         Behavior.__init__(self, name, world_interface, verbose, max_ticks=1)
-        PlannedBehavior.__init__(self, [], postconditions)
+        PlannedBehavior.__init__(self, preconditions, postconditions)
 
     def cost(self) -> int:
         """Define the cost of the action."""
