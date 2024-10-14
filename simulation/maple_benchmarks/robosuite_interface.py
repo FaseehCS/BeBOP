@@ -523,7 +523,9 @@ class RobosuiteInterface():
 
             if frame_yaw != 0.0:
                 position = rotate_frame_z(position, frame_yaw)
-
+        # Makes sure that if frame_position is None, we assign default value
+        if frame_position is None:
+            frame_position= np.array([0.0, 0.0, 0.0])
         return frame_position + position
 
     def at_pos(self, target_object, target_offset):
@@ -539,6 +541,9 @@ class RobosuiteInterface():
         if threshold == 0.0:
             threshold = IN_POS_DIST
         object_position = self.get_object_position(target_object)
+        # Makes sure that if object_position is None, we assign default value
+        if object_position is None:
+            object_position = [0,0,0]
         if np.linalg.norm(object_position - pos) < threshold:
             return True
         return False
