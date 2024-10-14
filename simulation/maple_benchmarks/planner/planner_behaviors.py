@@ -406,11 +406,20 @@ class Push(Behavior, PlannedBehavior):
 
     def update(self):
         """Executes behavior """
+        # Check if the target position is the same as the current position
+        current_position = self.world_interface.object_positions.get(self.target_object, None)
+        print ("current_position of self.target_object in push", self.target_object, current_position)
+        if current_position == self.target_position:
+            # Adjust the target position to a specified fallback position
+            self.target_position = '(0.0, 0.0, 0.02)'
+            # self.relative_object = ''
+            print ("new target_position", self.target_position)
         self.check_for_success()
         Behavior.update(self)
 
         if self.state is pt.common.Status.RUNNING:
-            self.world_interface.move(self.target_object, 'none+' + self.offset)
+            # self.world_interface.move(self.target_object, 'none+' + self.target_position)
+            self.world_interface.move(self.target_object, self.target_position)
         return self.state
 
 
