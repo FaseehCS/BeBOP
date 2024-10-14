@@ -752,7 +752,9 @@ class CheckLoc(pt.behaviour.Behaviour, PlannedBehavior):
 
     def __init__(self, name, parameters, world_interface):
         self.world_interface = world_interface
-
+        # Picks the first obstacle if you have multiple obstacles
+        if parameters[0] == 'peg':
+            parameters[0] = [item for item in self.world_interface.movable_objects if item != 'peg'][0]
         # Ensure that all three parameters are handled correctly
         if len(parameters) > 0:
             self.target_object = parameters[0]  # The object to be checked against
@@ -799,13 +801,14 @@ class CheckLoc(pt.behaviour.Behaviour, PlannedBehavior):
         return [self.target_object, self.relative_object, self.offset]
 
     def update(self):
-        graspable_objects = self.world_interface.graspable_objects
+        # objects = self.world_interface.movable_objects
+        objects = [item for item in self.world_interface.movable_objects if item != 'peg']
         # print("graspable_objects", graspable_objects)
-        for obj in graspable_objects:
-            if obj != "peg" and self.world_interface.object_at_pos(obj, self.offset):
-                # print("FAIL CheckLoc")
+        for obj in objects:
+            if self.world_interface.object_at_pos(obj, self.offset):
+                print("FAIL CheckLoc", obj)
                 return pt.common.Status.FAILURE
-        # print("SUCCESS CheckLoc")
+        print("SUCCESS CheckLoc", obj)
         return pt.common.Status.SUCCESS
 
 class Insert(Behavior, PlannedBehavior):
