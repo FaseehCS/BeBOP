@@ -311,6 +311,42 @@ def test_peg_ins():
     assert fitness_tuple[3]
     assert round(abs(fitness_tuple[1] - fitness_tuple[0] + 9 * parameters.fitness_coeff.length)) < 0.001
 
+def test_peg_ins_large():
+    """ creates a whole manually constructed Behavior Tree to solve the peg_ins scenario """
+    behavior_lists = behavior_list_settings.get_behavior_list(['peg'])
+    robosuite_parameters = robosuite_interface.RobosuiteParameters()
+    robosuite_parameters.type = 'peg_ins_recovery_large'
+    parameters = env.EnvParameters()
+    parameters.py_tree_parameters = PyTreeParameters()
+    parameters.py_tree_parameters.behaviors = behaviors
+    parameters.py_tree_parameters.behavior_lists = behavior_list_settings.get_behavior_list(['peg', 'obstacle'],
+                                                                                                    random_step=True,
+                                                                                                    large_object=True)
+    parameters.py_tree_parameters.successes_required = 2
+    parameters.sim_class = robosuite_interface.RobosuiteInterface
+    parameters.sim_parameters = robosuite_parameters
+    parameters.fitness_func = fitness_function.compute_fitness
+    parameters.fitness_coeff = fitness_function.Coefficients()
+    environment = env.Environment(parameters)
+    
+    parameters.sim_class.graspable_objects = ['peg', 'obstacle']
+    parameters.sim_class.all_objects = ['peg', 'obstacle']
+    string_bt = ['f(', 'peg at none (0.0, -0.3, 0.1)', 
+                       's(', 
+                            'f(', 'check_loc none (0.0, -0.15, 0.1)', 
+                                  'push obstacle (0.2, -0.2, 0.0) 0.4', ')', 
+                            'f(', 'aligned peg', 
+                                  's(', 'grasp peg (-0.1, 0.0, 0.0) 0.0', 
+                                        'atomic peg (0.0, 0.05, 0.1) -1.57 0.0', ')', ')', 
+                            'atomic peg (0.0, -0.3, 0.1) -1.57 0.0', ')', ')']
+
+    behavior_lists.convert_from_string(string_bt)
+    fitness_tuple = environment.get_fitness(string_bt, 0, True)
+    assert fitness_tuple[0] > 150
+    assert fitness_tuple[1] > 500
+    assert fitness_tuple[3]
+    assert round(abs(fitness_tuple[1] - fitness_tuple[0] + 9 * parameters.fitness_coeff.length)) < 0.001
+
 
 if __name__ == "__main__":
     test_door()
