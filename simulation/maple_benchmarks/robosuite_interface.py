@@ -711,7 +711,7 @@ class RobosuiteInterface():
             return self.get_robot_position()
         elif target_object == 'none':
             # Just set up an origin inside the workspace [0.0, 0.0, 0.0] is not
-            if self.type == 'peg_ins' or self.type == 'peg_ins_recovery':
+            if 'peg_ins' in self.type == 'peg_ins':
                 return np.array([-0.075, -0.15, 0.8])
             else:
                 return np.array([-0.075, 0.0, 0.8])
@@ -754,7 +754,7 @@ class RobosuiteInterface():
                 return self.observation[11:14]
             elif target_object == 'hole':
                 return self.observation[21:24]
-        elif self.type == 'peg_ins_recovery':
+        elif self.type == 'peg_ins_recovery' or self.type == 'peg_ins_recovery_large':
             if target_object == 'peg':
                 return self.observation[11:14]
             elif target_object == 'hole':
@@ -800,7 +800,7 @@ class RobosuiteInterface():
                 _, _, object_yaw = quat_to_euler(self.observation[14:18])
             elif target_object == 'hole':
                 object_yaw = 0.0
-        elif self.type == 'peg_ins_recovery':
+        elif self.type == 'peg_ins_recovery' or self.type == 'peg_ins_recovery_large':
             if target_object == 'peg':
                 _, _, object_yaw = quat_to_euler(self.observation[14:18])
             elif target_object == 'hole':
@@ -816,7 +816,7 @@ class RobosuiteInterface():
         perpendicular distance is small enough
         """
         aligned = False
-        if self.type == 'peg_ins' or self.type == 'peg_ins_recovery':
+        if self.type == 'peg_ins' or self.type == 'peg_ins_recovery' or self.type == 'peg_ins_recovery_large':
             if target_object == 'peg':
                 if self.observation[24] > 0.97 and self.observation[26] < 0.03:
                     aligned = True                   
