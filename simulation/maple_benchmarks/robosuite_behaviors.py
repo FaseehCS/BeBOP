@@ -160,8 +160,8 @@ class CheckLoc(pt.behaviour.Behaviour):
             return ["", "", (0.0, 0.0, 0.0)]
 
         # Extract target_object and relative_object
-        target_object = parts[1]  # Second part is target object
-        relative_object = parts[2]  # Third part is relative object
+        target_object = ""#parts[1]  # Second part is target object
+        relative_object = parts[1]  # Third part is relative object
         parameters.append(target_object)
         parameters.append(relative_object)
 
@@ -685,8 +685,10 @@ class Grasp(common_behaviors.Behavior):
             relative_object = relative_object.strip()
             # Extract offset as a tuple of floats
             offset = tuple(map(float, re.findall(r'-?\d*\.?\d+', f"({offset_str}")))
-            if len(offset) != 3:
+            if len(offset) < 3:
                 offset = (0.0, 0.0, 0.0)  # Default if offset is not parsed correctly
+            elif len(offset) > 3:
+                offset = offset[0:3]
             angle = 0.0  # Default angle
             # Check if there is an angle part after the offset
             if ')' in offset_str:
@@ -834,7 +836,7 @@ class PushTowards(common_behaviors.Behavior):
             self.calculate_start_position()
             self.world_interface.set_action_type(ActionTypes.PUSH)
             self.world_interface.set_target_and_offset(self.target_object, self.start_offset, True)
-            self.world_interface.set_yaw(0.0, None)
+            self.world_interface.set_yaw(1.57, None) #TODO needs to be parameterized
             self.world_interface.set_delta_offset(self.end_offset)
 
         return self.state
