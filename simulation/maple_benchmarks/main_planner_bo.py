@@ -55,6 +55,7 @@ from simulation.maple_benchmarks import behavior_list_settings, robosuite_behavi
 import simulation.maple_benchmarks.robosuite_interface as sim
 from simulation.maple_benchmarks.planner.world_interface import WorldInterface
 from simulation.maple_benchmarks.planner import planner_behaviors
+from simulation.maple_benchmarks.planner import planner_behaviors_handle_turning_unknown
 from simulation.py_trees_interface import PyTreeParameters
 
 from bt_learning.planner import planner
@@ -480,7 +481,7 @@ def get_bo_handler(env_parameters, bo_settings, env_type="lift", fix_goal_condit
             behavior_list_settings.get_behavior_list(['cube'],
                                                      at_pos_threshold=0.06,
                                                      random_step=True)
-    elif env_type == "door":
+    elif env_type == "door" or env_type == "door_handle_turning_unknown":
         world_interface = WorldInterface('door', ['handle'])
         if fix_goal_condition:
             goals = [planner_behaviors.DoorOpen('door open', ['0.1'], world_interface)]
@@ -579,7 +580,11 @@ def get_bo_handler(env_parameters, bo_settings, env_type="lift", fix_goal_condit
         env_parameters.py_tree_parameters.behavior_lists = behavior_list_settings.get_behavior_list(['peg', 'obstacle'],
                                                                                                     random_step=True,
                                                                                                     large_object=True)
-    string_bt, _ = planner.plan(world_interface, planner_behaviors, goals, BehaviorLists(sequence_nodes=['s(', 'sm(']))
+    if env_type == "door_handle_turning_unknown":
+        string_bt, _ = planner.plan(world_interface, planner_behaviors_handle_turning_unknown, goals, BehaviorLists(sequence_nodes=['s(', 'sm(']))
+    else:
+        string_bt, _ = planner.plan(world_interface, planner_behaviors, goals, BehaviorLists(sequence_nodes=['s(', 'sm(']))
+
     print("------------------------- TREE \n\n",string_bt)
     ### Learning start here
     env_parameters.py_tree_parameters.behavior_lists.convert_from_string(string_bt)
@@ -659,21 +664,31 @@ if __name__ == "__main__":
     env_parameters.fitness_coeff = fitness_function.Coefficients()
     env_parameters.verbose = False
 
-    bo_settings = HandlerSettings(iterations=args.iterations,
-                                  hotstart=args.hotstart,
-                                  cascaded=args.cascaded)
-    bo_settings.runs_per_bt = 20
-    bo_settings.validation_runs = 20
-    bo_settings.random_search = False
-    bo_settings.cma_es = False
+    bo_settings = HandlerSettings()
+    bo_settings.iterations = 1
+    bo_settings.runs_per_bt = 1
+    bo_settings.validation_runs = 1
+    bo_settings.hotstart = False
+    bo_settings.cascaded = False
+    bo_settings.log_name = "test_run"
+    bo_handler = get_bo_handler(env_parameters, bo_settings, env_type="door_handle_turning_unknown")
+    bo_handler.run_parameters([0.1,0.0,0.02, 0.0, 0.0, -0.289, 0.1, -1.502, 0.0, -0.289, 0.1, -1.566, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0],seed=100)
+    
+    # bo_settings = HandlerSettings(iterations=args.iterations,
+    #                               hotstart=args.hotstart,
+    #                               cascaded=args.cascaded)
+    # bo_settings.runs_per_bt = 20
+    # bo_settings.validation_runs = 20
+    # bo_settings.random_search = False
+    # bo_settings.cma_es = False
 
-    if args.repetitions > 1:
-        for i in range(args.repetitions):
-            bo_settings.log_name = args.prefix + "/" + args.experiment + "/" + args.experiment + "_" + str(i)
-            setup_and_run_bo(env_parameters, bo_settings, env_type=args.experiment)
-    else:
-        bo_settings.log_name = args.prefix + "/" + args.experiment + "/" + args.experiment + "_" + str(args.repetition)
-        setup_and_run_bo(env_parameters, bo_settings, env_type=args.experiment)
+    # if args.repetitions > 1:
+    #     for i in range(args.repetitions):
+    #         bo_settings.log_name = args.prefix + "/" + args.experiment + "/" + args.experiment + "_" + str(i)
+    #         setup_and_run_bo(env_parameters, bo_settings, env_type=args.experiment)
+    # else:
+    #     bo_settings.log_name = args.prefix + "/" + args.experiment + "/" + args.experiment + "_" + str(args.repetition)
+    #     setup_and_run_bo(env_parameters, bo_settings, env_type=args.experiment)
 
     # bo_settings = HandlerSettings()
     # bo_settings.iterations = 1000
