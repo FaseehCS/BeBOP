@@ -472,12 +472,28 @@ def get_bo_handler(env_parameters, bo_settings, env_type="lift", fix_goal_condit
     """ Set up and return BO handler """
     if env_type == "lift":
         world_interface = WorldInterface('lift', ['cube'])
+        env_parameters.sim_class.graspable_objects = ['cube']
+        env_parameters.sim_class.all_objects = ['cube']
         if fix_goal_condition:
             goals = [planner_behaviors.AtPos('at ', ['cube', 'none', '(0.0, 0.0, 0.1)', True], world_interface)]
         else:
             goals = [planner_behaviors.AtPos('at ', ['cube', 'none', 'unknown', True], world_interface)]
         env_parameters.py_tree_parameters.behavior_lists = \
             behavior_list_settings.get_behavior_list(['cube'],
+                                                     at_pos_threshold=0.06,
+                                                     random_step=True)
+    if env_type == "lift_w_obstacle":
+        world_interface = WorldInterface('lift_w_obstacle', ['cube', 'obstacle'])
+        world_interface.set_object_pos('cube','(0.0, 0.0, 0.0)')
+        world_interface.set_object_pos('obstacle','(0.0, 0.0, 0.02)')
+        env_parameters.sim_class.graspable_objects = ['cube', 'obstacle']
+        env_parameters.sim_class.all_objects = ['cube', 'obstacle']
+        if fix_goal_condition:
+            goals = [planner_behaviors.AtPos('at ', ['cube', 'none', '(0.0, 0.0, 0.1)', True], world_interface)]
+        else:
+            goals = [planner_behaviors.AtPos('at ', ['cube', 'none', 'unknown', True], world_interface)]
+        env_parameters.py_tree_parameters.behavior_lists = \
+            behavior_list_settings.get_behavior_list(['cube', 'obstacle'],
                                                      at_pos_threshold=0.06,
                                                      random_step=True)
     elif env_type == "door":
